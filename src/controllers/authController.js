@@ -7,7 +7,7 @@ const User = require("../models/userModel");
 const login = async (req = request, res = response) => {
   const { username, password } = req.body;
 
-  const user = await User.findOne({ username });
+  const user = await User.findOne({ username:username.toLowerCase() });
 
   if (!user) {
     return res.status(401).json({ message: "Datos incorrectos." });
@@ -18,7 +18,6 @@ const login = async (req = request, res = response) => {
   }
   
   const validPassword = bcryptjs.compareSync(password, user.password);
-  
   if (!validPassword) {
     return res.status(401).json({ message: "Datos incorrectos." });
   }
