@@ -6,6 +6,7 @@ require("dotenv").config();
 
 const authRouter = require("./routes/authRoutes");
 const userRouter = require("./routes/userRoutes");
+const socioRouter = require("./routes/socioRoutes");
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use(express.json());
 
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
+app.use("/api/socio", socioRouter);
 
 app.listen(PORT, () => {
   console.log(`API Rest escuchando el puerto ${PORT}`);
