@@ -1,97 +1,157 @@
 const mongoose = require("mongoose");
+const moment = require('moment');
+const { getMonthNumber } = require("../helpers/getMonthNumber");
+
+const quotaSchema = new mongoose.Schema(
+  {
+    month: {
+      type: String,
+      enum: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+      required: true,
+    },
+    year: {
+      type: String,
+      required: true,
+    },
+    datePayed: {
+      type: Date,
+      default: null,
+    },
+    quotaStatus:{
+      type: String,
+      enum: ['PAID', 'EXPIRED', 'PENDING'],
+      default: 'PENDING'
+    },
+  },
+  { _id: false }
+);
 
 const socioSchema = new mongoose.Schema(
   {
     subscriptionStatus:{
       type: String,
-      enum: ['ACTIVE', 'EXPIRE_SOON', 'EXPIRED', 'DECEASED'],
-      required: [true, "La propiedad subscriptionStatus es obligatoria"],
+      enum: ['ACTIVE', 'EXPIRES_SOON', 'EXPIRED', 'DECEASED'],
+      default: 'ACTIVE',
+      required: [true, "subscriptionStatus is required."],
     },
     idSocio: {
       type: Number,
-      required: [true, "La propiedad idSocio es obligatoria"],
+      required: [true, "idSocio is required."],
       unique: true,
     },
     name: {
       type: String,
-      required: [true, "La propiedad name es obligatoria"],
+      required: [true, "name is required."],
     },
     surname: {
       type: String,
-      required: [true, "La propiedad surname es obligatoria"],
+      required: [true, "surname is required."],
     },
     dni: {
       type: String,
-      required: [true, "La propiedad dni es obligatoria"],
+      required: [true, "dni is required."],
     },
     cuil: {
       type: String,
-      required: [true, "La propiedad cuil es obligatoria"],
+      required: [true, "cuil is required."],
     },
     maritalStatus:{
       type: String,
       enum: ['','Soltero', 'Casado', 'Viudo', 'Divorciado'],
-      required: [true, "La propiedad maritalStatus es obligatoria"],
+      default: '',
     },
     birthdate: {
       type: String,
-      required: [true, "La propiedad birthdate es obligatoria"],
+      default: '',
     },
     startDate: {
       type: String,
-      required: [true, "La propiedad startDate es obligatoria"],
+      required: [true, "startDate is required."],
     },
     fee: {
       type: String,
-      required: [true, "La propiedad fee es obligatoria"],
+      required: [true, "fee is required."],
     },
     email: {
       type: String,
-      required: [true, "La propiedad email es obligatoria"],
+      default: '',
     },
     phonenumber: {
       type: String,
-      required: [true, "La propiedad phonenumber es obligatoria"],
+      default: '',
     },
     address: {
       type: String,
-      required: [true, "La propiedad address es obligatoria"],
+      default: '',
     },
     apartmentNumber: {
       type: String,
-      required: [true, "La propiedad apartmentNumber es obligatoria"],
+      default: '',
     },
     postalCode: {
       type: String,
-      required: [true, "La propiedad postalCode es obligatoria"],
+      default: '',
     },
     town: {
       type: String,
-      required: [true, "La propiedad town es obligatoria"],
+      default: '',
     },
+    quotas: [quotaSchema],
+    alive:{
+      type: Boolean,
+      default: true,
+    },
+    status:{
+      type: Boolean,
+      default: true,
+    },
+  },
+  {
+    timestamps: true
   }
-,{ suppressReservedKeysWarning: true });
+);
 
 socioSchema.methods.toJSON = function () {
-  const { __v, _id, ...product } = this.toObject();
-  const parseProduct = {
+  const { __v, _id, ...socio } = this.toObject();
+  const parseSocio = {
     id: _id,
-    ...product,
+    ...socio,
   };
-  return parseProduct;
+  return parseSocio;
 };
 
 socioSchema.methods.simple = function () {
+  const paidQuotas = this.quotas.filter(quota => quota.quotaStatus === 'PAID');
+  const lastQuota = paidQuotas.reduce((latest, current) => {
+    const latestDate = new Date(latest.year, getMonthNumber(latest.month));
+    const currentDate = new Date(current.year, getMonthNumber(current.month));
+    return currentDate > latestDate ? current : latest;
+  }, paidQuotas[0]);
+
+  let antiquity;
+  const years = moment().diff(moment(this.startDate, 'YYYY-MM-DD'), 'years');
+  const months  = moment().diff(moment(this.startDate, 'YYYY-MM-DD'), 'months');
+  const days = moment().diff(moment(this.startDate, 'YYYY-MM-DD'), 'days');
+
+  if (years >= 1) {
+    antiquity = `${years} ${years === 1 ? 'año' : 'años'}`;
+  } else if(months >= 1){
+    antiquity = `${months} ${months === 1 ? 'mes' : 'meses'}`;
+  } else if(days >= 0){
+    antiquity = `${days >= 1 ? days : 1} ${days < 2 ? 'día' : 'días'}`;
+  }
+
   return {
     subscriptionStatus: this.subscriptionStatus,
     idSocio: this.idSocio,
     name: this.name,
     surname: this.surname,
     cuil: this.cuil,
-    startDate: this.startDate,
     phonenumber: this.phonenumber,
     address: this.address,
-    town: this.town
+    town: this.town,
+    antiquity,
+    lastQuota: lastQuota || null,
   };
 };
 
