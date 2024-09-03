@@ -112,8 +112,9 @@ const socioSchema = new mongoose.Schema(
 );
 
 socioSchema.methods.toJSON = function () {
-  const { __v, _id, ...socio } = this.toObject();
+  const { __v, _id, quotas, ...socio } = this.toObject();
   const parseSocio = {
+    quotas: quotas.reverse(),
     id: _id,
     ...socio,
   };

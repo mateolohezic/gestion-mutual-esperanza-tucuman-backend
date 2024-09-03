@@ -7,6 +7,7 @@ const router = express.Router();
 const socioController = require("../controllers/socioController");
 
 router.get("/", socioController.getAllSocios);
+router.get("/sort", socioController.getAllSociosSorted);
 router.get("/simple", socioController.getAllSimpleSocios);
 router.get("/new-id", socioController.getNewSocioId);
 router.get("/:idSocio", socioController.getOneSocio);

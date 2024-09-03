@@ -14,6 +14,31 @@ const getAllSocios = async (req, res) => {
   }
 };
 
+const getAllSociosSorted = async (req, res) => {
+  try {
+    const { field, sort } = req.query;
+
+    const socios = await socioService.getAllSociosSimple();
+
+    if (!field || !sort) {
+      return res.status(400).json({ error: 'field and sort required.' });
+    }
+
+    socios.sort((a, b) => {
+      if (sort === 'asc') {
+        return a[field] > b[field] ? 1 : -1;
+      } else if (sort === 'desc') {
+        return a[field] < b[field] ? 1 : -1;
+      }
+      return 0;
+    });
+
+    return res.status(200).json({socios});
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
 const getAllSimpleSocios = async (req, res) => {
   try {
     const socios = await socioService.getAllSociosSimple();
@@ -187,6 +212,7 @@ const addQuotaManually = async (req, res) => {
 
     return res.status(200).json({message:"Cuota añadida con éxito."});
   } catch (error) {
+    console.log(error)
     return res.status(500).json({ error: error.message });
   }
 };
@@ -249,7 +275,7 @@ const updateSubscriptionStatus = (socio) => {
   if (expiredCount >= 4) {
     socio.subscriptionStatus = 'EXPIRED';
   } else if (expiredCount > 0) {
-    socio.subscriptionStatus = 'EXPIRE_SOON';
+    socio.subscriptionStatus = 'EXPIRES_SOON';
   } else {
     socio.subscriptionStatus = 'ACTIVE';
   }
@@ -261,7 +287,7 @@ const updateMonthlySubscriptionStatus = (socio) => {
   if (expiredCount >= 4) {
     socio.subscriptionStatus = 'EXPIRED';
   } else if (expiredCount > 0) {
-    socio.subscriptionStatus = 'EXPIRE_SOON';
+    socio.subscriptionStatus = 'EXPIRES_SOON';
   } else {
     socio.subscriptionStatus = 'ACTIVE';
   }
@@ -299,6 +325,7 @@ cron.schedule(
 
 module.exports = {
   getAllSocios,
+  getAllSociosSorted,
   getAllSimpleSocios,
   getNewSocioId,
   newSocio,
