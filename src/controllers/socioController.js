@@ -144,7 +144,7 @@ const deceasedSocio = async (req, res) => {
 
 const markQuotaAsPaid = async (req, res) => {
   try {
-    const { id, month, year } = req.body;
+    const { id, month, year, fee } = req.body;
     const socio = await socioService.getSocioById(id);
     if (!socio) {
       return res.status(404).json({message:"Socio no encontrado"});
@@ -154,12 +154,39 @@ const markQuotaAsPaid = async (req, res) => {
     if (!quota) {
       return res.status(404).json({message:"Cuota no encontrada"});
     }
+
     quota.quotaStatus = 'PAID';
+    quota.fee = parseFloat(fee);
     quota.datePayed = moment.tz('America/Argentina/Buenos_Aires').format('YYYY-MM-DD HH:mm:ss');
 
     updateSubscriptionStatus(socio);
     await socio.save();
     return res.status(200).json({message:"Cuota pagada con éxito."});
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+const markExtraFeeAsPaid = async (req, res) => {
+  try {
+    const { id, month, year, extraFee } = req.body;
+    const socio = await socioService.getSocioById(id);
+    if (!socio) {
+      return res.status(404).json({message:"Socio no encontrado"});
+    }
+
+    const quota = socio.quotas.find(q => q.month === month && q.year === year);
+    if (!quota) {
+      return res.status(404).json({message:"Cuota no encontrada"});
+    }
+
+    quota.extraFeePayed = true;
+    quota.extraFee = parseFloat(extraFee);
+    quota.extraDatePayed = moment.tz('America/Argentina/Buenos_Aires').format('YYYY-MM-DD HH:mm:ss');
+
+    updateSubscriptionStatus(socio);
+    await socio.save();
+    return res.status(200).json({message:"Cuota extra pagada con éxito."});
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
@@ -179,6 +206,32 @@ const markQuotaAsUnpaid = async (req, res) => {
     }
     quota.quotaStatus = 'PENDING';
     quota.datePayed = null;
+    quota.extraFeePayed = false;
+    quota.extraDatePayed = null;
+
+    updateSubscriptionStatus(socio);
+    await socio.save();
+    return res.status(200).json({message:"Cuota pagada con éxito."});
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+const markExtraFeeAsUnpaid = async (req, res) => {
+  try {
+    const { id, month, year } = req.body;
+    const socio = await socioService.getSocioById(id);
+    if (!socio) {
+      return res.status(404).json({message:"Socio no encontrado"});
+    }
+
+    const quota = socio.quotas.find(q => q.month === month && q.year === year);
+    if (!quota) {
+      return res.status(404).json({message:"Cuota no encontrada"});
+    }
+    
+    quota.extraFeePayed = false;
+    quota.datePayed = null;
 
     updateSubscriptionStatus(socio);
     await socio.save();
@@ -189,7 +242,7 @@ const markQuotaAsUnpaid = async (req, res) => {
 };
 
 const addQuotaManually = async (req, res) => {
-  const { id, month, year } = req.body
+  const { id, month, year, fee, extraFee } = req.body
   try {
     const socio = await socioService.getSocioById(id);
     if (!socio) {
@@ -334,7 +387,9 @@ module.exports = {
   deceasedSocio,
   deleteSocio,
   markQuotaAsPaid,
+  markExtraFeeAsPaid,
   markQuotaAsUnpaid,
+  markExtraFeeAsUnpaid,
   addQuotaManually,
   deleteQuota
 };

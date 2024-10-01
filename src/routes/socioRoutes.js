@@ -19,7 +19,9 @@ router.put("/deceased", socioController.deceasedSocio);
 
 router.post("/", socioController.newSocio);
 router.post("/quota/pay", socioController.markQuotaAsPaid);
+router.post("/quota/extra/pay", socioController.markExtraFeeAsPaid);
 router.post("/quota/unpay", socioController.markQuotaAsUnpaid);
+router.post("/quota/extra/unpay", socioController.markExtraFeeAsUnpaid);
 router.post("/quota", socioController.addQuotaManually);
 
 // router.put("/:id", [validarJWT, esAdminRol], socioController.updateSocio);

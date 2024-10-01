@@ -13,7 +13,19 @@ const quotaSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    fee: {
+      type: Number,
+      default: 0,
+    },
+    extraFee: {
+      type: Number,
+      default: 0,
+    },
     datePayed: {
+      type: Date,
+      default: null,
+    },
+    extraDatePayed: {
       type: Date,
       default: null,
     },
@@ -21,6 +33,10 @@ const quotaSchema = new mongoose.Schema(
       type: String,
       enum: ['PAID', 'EXPIRED', 'PENDING'],
       default: 'PENDING'
+    },
+    extraFeePayed:{
+      type: Boolean,
+      default: false
     },
   },
   { _id: false }
