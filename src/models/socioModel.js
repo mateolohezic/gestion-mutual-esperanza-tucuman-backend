@@ -112,6 +112,10 @@ const socioSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    observations: {
+      type: String,
+      default: '',
+    },
     quotas: [quotaSchema],
     alive:{
       type: Boolean,

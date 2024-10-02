@@ -50,7 +50,7 @@ const getAllSimpleSocios = async (req, res) => {
 
 const newSocio = async (req, res) => {
   try {
-    const { name, surname, dni, cuil, maritalStatus, birthdate, idSocio, fee, startDate, email, phonenumber, address, apartmentNumber, postalCode, town } = req.body;
+    const { name, surname, dni, cuil, maritalStatus, birthdate, idSocio, fee, startDate, email, phonenumber, address, apartmentNumber, postalCode, town, observations } = req.body;
     const payload = {
       name,
       surname,
@@ -67,6 +67,7 @@ const newSocio = async (req, res) => {
       apartmentNumber,
       postalCode,
       town,
+      observations
     }
 
     const socio = await socioService.createSocio(payload);
@@ -101,8 +102,24 @@ const getNewSocioId = async (req, res) => {
  
 const updateSocio = async (req, res) => {
   try {
-    const { id, name, surname, dni, cuil, maritalStatus, birthdate, fee, startDate, email, phonenumber, address, apartmentNumber, postalCode, town } = req.body;
-    const payload = { name, surname, dni, cuil, maritalStatus, birthdate, fee, startDate, email, phonenumber, address, apartmentNumber, postalCode, town }
+    const { id, name, surname, dni, cuil, maritalStatus, birthdate, fee, startDate, email, phonenumber, address, apartmentNumber, postalCode, town, observations } = req.body;
+    const payload = {
+      name,
+      surname,
+      dni,
+      cuil,
+      maritalStatus,
+      birthdate,
+      fee,
+      startDate,
+      email,
+      phonenumber,
+      address,
+      apartmentNumber,
+      postalCode,
+      town,
+      observations
+    }
     
     const socio = await socioService.updateSocio(id, payload);
 
