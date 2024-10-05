@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const cookieParser = require('cookie-parser');
 
 require("dotenv").config();
 
@@ -18,12 +19,14 @@ mongoose
   .then(() => console.log("Conectado a MongoDB Atlas"));
     
 const corsOptions = {
-  origin: '*',
-  optionsSuccessStatus: 200
+  origin: 'http://localhost:3000',
+  optionsSuccessStatus: 200,
+  credentials: true
 };
 
 app.use(cors(corsOptions));
 app.use(express.json());
+app.use(cookieParser());
 
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);

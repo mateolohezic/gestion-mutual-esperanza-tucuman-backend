@@ -14,26 +14,49 @@ const getAllSocios = async (req, res) => {
   }
 };
 
-const getAllSociosSorted = async (req, res) => {
+const getAllSociosSimpleFiltered = async (req, res) => {
   try {
-    const { field, sort } = req.query;
+    const { field, sort, search, month, year } = req.query;
 
-    const socios = await socioService.getAllSociosSimple();
+    let socios = await socioService.getAllSociosSimple();
 
-    if (!field || !sort) {
-      return res.status(400).json({ error: 'field and sort required.' });
+    if (search) {
+      const searchParam = search.toLowerCase();
+      socios = socios.filter((socio) => {
+        const fullName = `${socio.name} ${socio.surname}`.toLowerCase();
+        return (
+          socio.name.toLowerCase().includes(searchParam) ||
+          socio.surname.toLowerCase().includes(searchParam) ||
+          socio.cuil.toLowerCase().includes(searchParam) ||
+          socio.town.toLowerCase().includes(searchParam) ||
+          socio.address.toLowerCase().includes(searchParam) ||
+          fullName.includes(searchParam)
+        );
+      });
     }
 
-    socios.sort((a, b) => {
-      if (sort === 'asc') {
-        return a[field] > b[field] ? 1 : -1;
-      } else if (sort === 'desc') {
-        return a[field] < b[field] ? 1 : -1;
-      }
-      return 0;
-    });
+    if (month || year) {
+      socios = socios.filter((socio) => {
+        const { lastQuota } = socio;
+        if (!lastQuota) return false;
+        const matchesMonth = month ? lastQuota.month === month : true;
+        const matchesYear = year ? lastQuota.year === year : true;
+        return matchesMonth && matchesYear;
+      });
+    }
 
-    return res.status(200).json({socios});
+    if (field && sort) {
+      socios.sort((a, b) => {
+        if (sort === 'asc') {
+          return a[field] > b[field] ? 1 : -1;
+        } else if (sort === 'desc') {
+          return a[field] < b[field] ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+
+    return res.status(200).json({ socios });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
@@ -395,7 +418,7 @@ cron.schedule(
 
 module.exports = {
   getAllSocios,
-  getAllSociosSorted,
+  getAllSociosSimpleFiltered,
   getAllSimpleSocios,
   getNewSocioId,
   newSocio,
