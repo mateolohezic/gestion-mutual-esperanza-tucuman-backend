@@ -172,11 +172,14 @@ const deleteSocio = async (req, res) => {
 const deceasedSocio = async (req, res) => {
   try {
     const { id } = req.body;
-    const socio = await socioService.updateSocio(id, { alive: false });
+    const socio = await socioService.updateSocio(id, {
+      alive: false,
+      subscriptionStatus: 'DECEASED'
+    });
     if (!socio) {
       return res.status(404).json({ message: "Socio no encontrado." });
     }
-    return res.status(200).json({ message: "Socio eliminado con éxito." });
+    return res.status(200).json({ message: "Estado del socio actualizado con éxito." });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
