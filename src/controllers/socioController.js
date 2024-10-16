@@ -285,7 +285,7 @@ const markExtraFeeAsUnpaid = async (req, res) => {
 };
 
 const addQuotaManually = async (req, res) => {
-  const { id, month, year, fee, extraFee } = req.body
+  const { id, month, year } = req.body
   try {
     const socio = await socioService.getSocioById(id);
     if (!socio) {
@@ -378,6 +378,8 @@ const updateSubscriptionStatus = (socio) => {
 };
 
 const updateMonthlySubscriptionStatus = (socio) => {
+  if(socio.subscriptionStatus === 'DECEASED') return;
+
   const expiredQuotas = socio.quotas.filter((quota) => quota.quotaStatus === 'EXPIRED');
   const expiredCount = expiredQuotas.length;
   if (expiredCount >= 4) {
