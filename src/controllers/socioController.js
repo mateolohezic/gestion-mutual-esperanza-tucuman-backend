@@ -158,8 +158,8 @@ const updateSocio = async (req, res) => {
 
 const deleteSocio = async (req, res) => {
   try {
-    const { id } = req.body;
-    const socio = await socioService.updateSocio(id, { status: false });
+    const { id } = req.params;
+    const socio = await socioService.updateSocioBySocioId(id, { status: false });
     if (!socio) {
       return res.status(404).json({ message: "Socio no encontrado." });
     }

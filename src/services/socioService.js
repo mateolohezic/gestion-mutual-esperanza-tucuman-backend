@@ -66,6 +66,18 @@ const updateSocio = async (id, payload) => {
   }
 };
 
+const updateSocioBySocioId = async (idSocio, payload) => {
+  try {
+    const updatedSocio = await Socio.findOneAndUpdate({idSocio}, payload, {
+      new: true,
+      runValidators: true
+    });
+    return updatedSocio;
+  } catch (error) {
+    throw error;
+  }
+};
+
 const createQuotaForNewSocio = () => {
   const currentDate = moment.tz('America/Argentina/Buenos_Aires');
   const currentMonth = currentDate.format('MMMM');
@@ -92,4 +104,4 @@ const createSocio = async (payload) => {
   }
 };
 
-module.exports = { getAllSocios, getAllAliveSocios, getAllSociosSimple, getSocioById, getSocioBySocioId, getNewSocioId, updateSocio, createSocio };
+module.exports = { getAllSocios, getAllAliveSocios, getAllSociosSimple, getSocioById, getSocioBySocioId, getNewSocioId, updateSocio, updateSocioBySocioId, createSocio };
