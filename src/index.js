@@ -19,7 +19,7 @@ mongoose
   .then(() => console.log("Conectado a MongoDB Atlas"));
     
 const corsOptions = {
-  origin: 'http://localhost:3000',
+  origin: 'https://mutualesperanza.com.ar/',
   optionsSuccessStatus: 200,
   credentials: true
 };
