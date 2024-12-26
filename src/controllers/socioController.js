@@ -409,7 +409,6 @@ const processMonthlySociosQuotas = async () => {
       updateMonthlySubscriptionStatus(socio)
       await socio.save();
     }
-    console.log('Proceso de cuotas completado.');
   } catch (error) {
     console.error('Error al procesar las cuotas de los socios:', error);
   }
