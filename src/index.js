@@ -18,8 +18,19 @@ mongoose
   .catch((error) => console.log(error))
   .then(() => console.log("Conectado a MongoDB Atlas"));
     
+const allowedOrigins = [
+  'https://mutualesperanza.com.ar', 
+  'http://localhost:3000'
+];
+
 const corsOptions = {
-  origin: 'https://mutualesperanza.com.ar/',
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   optionsSuccessStatus: 200,
   credentials: true
 };
